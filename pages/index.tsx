@@ -1,64 +1,13 @@
 declare let window: any;
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import {
-	Center,
-	Text,
-	Heading,
-	Stack,
-	Box,
-	HStack,
-	Button,
-} from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
-import { FaWallet } from 'react-icons/fa';
+import { Center, Text, Heading, Stack, Button } from '@chakra-ui/react';
 import { ethers } from 'ethers';
-import abi from '../constants/WavePortal.json';
+import abi from '@/constants/WavePortal.json';
 
 const Home: NextPage = () => {
-	const [account, setAccount] = useState('');
 	const contractAddress = '0x64b8c44420E1Df13A27bBe3F30E8dEF3e485443f';
 	const contractABI = abi.abi;
-
-	const checkIfWalletIsConnected = async () => {
-		const { ethereum } = window;
-
-		if (!ethereum) {
-			console.log('Make sure you have metamask!');
-			return;
-		} else {
-			console.log('We have the ethereum object', ethereum);
-		}
-		const accounts = await ethereum.request({ method: 'eth_accounts' });
-
-		if (accounts.length !== 0) {
-			const account = accounts[0];
-			console.log('Found an authorized account:', account);
-			setAccount(account);
-		} else {
-			console.log('No authorized account found');
-		}
-	};
-
-	const connectWallet = async () => {
-		try {
-			const { ethereum } = window;
-
-			if (!ethereum) {
-				alert('Get MetaMask!');
-				return;
-			}
-
-			const accounts = await ethereum.request({
-				method: 'eth_requestAccounts',
-			});
-
-			console.log('Connected', accounts[0]);
-			setAccount(accounts[0]);
-		} catch (error) {
-			console.log(error);
-		}
-	};
 
 	const wave = async () => {
 		try {
@@ -95,10 +44,6 @@ const Home: NextPage = () => {
 		}
 	};
 
-	useEffect(() => {
-		checkIfWalletIsConnected();
-	}, []);
-
 	return (
 		<>
 			<Head>
@@ -107,43 +52,9 @@ const Home: NextPage = () => {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<Center h="100vh" w="100vw" pos="relative">
-				<HStack
-					pos="absolute"
-					top="12"
-					right="12"
-					userSelect="none"
-					border="1px"
-					rounded="full"
-					px="2"
-					py="1"
-					color="#ee6002"
-					bg="#fff2df"
-				>
-					<FaWallet />
-					<Text fontSize="sm">
-						{account.slice(0, 4)}...{account.slice(-4)}
-					</Text>
-				</HStack>
 				<Stack>
 					<Heading>Wave at me 👋🏿</Heading>
 					<Text textAlign="center">Connect your wallet to continue</Text>
-					{!account && (
-						<Box
-							as="button"
-							type="button"
-							rounded="xl"
-							py="2"
-							px="6"
-							cursor="pointer"
-							fontWeight="medium"
-							w="fit-content"
-							color="#ee6002"
-							bg="#fff2df"
-							onClick={connectWallet}
-						>
-							Connect your wallet
-						</Box>
-					)}
 					<Button onClick={wave}>Wave at me</Button>
 				</Stack>
 			</Center>
