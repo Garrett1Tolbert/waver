@@ -1,12 +1,24 @@
 declare let window: any;
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { Center, Text, Heading, Stack, Box, HStack } from '@chakra-ui/react';
+import {
+	Center,
+	Text,
+	Heading,
+	Stack,
+	Box,
+	HStack,
+	Button,
+} from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { FaWallet } from 'react-icons/fa';
+import { ethers } from 'ethers';
+import abi from '../constants/WavePortal.json';
 
 const Home: NextPage = () => {
 	const [account, setAccount] = useState('');
+	const contractAddress = '0x64b8c44420E1Df13A27bBe3F30E8dEF3e485443f';
+	const contractABI = abi.abi;
 
 	const checkIfWalletIsConnected = async () => {
 		const { ethereum } = window;
@@ -43,6 +55,41 @@ const Home: NextPage = () => {
 
 			console.log('Connected', accounts[0]);
 			setAccount(accounts[0]);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const wave = async () => {
+		try {
+			const { ethereum } = window;
+
+			if (ethereum) {
+				const provider = new ethers.providers.Web3Provider(ethereum);
+
+				const signer = provider.getSigner();
+				const wavePortalContract = new ethers.Contract(
+					contractAddress,
+					contractABI,
+					signer
+				);
+
+				let count = await wavePortalContract.getTotalWaves();
+				console.log('Retrieved total wave count...', count.toNumber());
+
+				const waveTxn = await wavePortalContract.wave();
+				console.log({ waveTxn });
+
+				console.log('Mining...', waveTxn.hash);
+
+				await waveTxn.wait();
+				console.log('Mined -- ', waveTxn.hash);
+
+				count = await wavePortalContract.getTotalWaves();
+				console.log('Retrieved total wave count...', count.toNumber());
+			} else {
+				console.log("Ethereum object doesn't exist!");
+			}
 		} catch (error) {
 			console.log(error);
 		}
@@ -97,6 +144,7 @@ const Home: NextPage = () => {
 							Connect your wallet
 						</Box>
 					)}
+					<Button onClick={wave}>Wave at me</Button>
 				</Stack>
 			</Center>
 		</>
