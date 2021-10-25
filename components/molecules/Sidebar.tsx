@@ -3,7 +3,14 @@ import Account from '../atoms/Account';
 
 const SidebarUI = () => {
 	return (
-		<Box h="100vh" px="4" shadow="dark-lg" pos="relative">
+		<Box
+			h="100vh"
+			minW="180px"
+			transition="all .2s"
+			px="4"
+			shadow="dark-lg"
+			pos="relative"
+		>
 			<Account />
 		</Box>
 	);

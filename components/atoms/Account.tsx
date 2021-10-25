@@ -1,14 +1,16 @@
 import { FaWallet } from 'react-icons/fa';
-import { Button, HStack, Text } from '@chakra-ui/react';
+import { Button, Center, Text } from '@chakra-ui/react';
 import useAuth from '@/hooks/useAuth';
 
 export default function Account(): JSX.Element {
 	const { account, connectWallet } = useAuth();
 
 	return !account ? (
-		<Button onClick={connectWallet}>Connect Wallet</Button>
+		<Button pos="sticky" top="calc(100vh - 56px)" onClick={connectWallet}>
+			Connect Wallet
+		</Button>
 	) : (
-		<HStack
+		<Center
 			pos="sticky"
 			top="calc(100vh - 47px)"
 			userSelect="none"
@@ -20,9 +22,9 @@ export default function Account(): JSX.Element {
 			bg="#fff2df"
 		>
 			<FaWallet />
-			<Text fontSize="sm">
+			<Text ml="2" fontSize="sm" textAlign="center">
 				{account.slice(0, 4)}...{account.slice(-4)}
 			</Text>
-		</HStack>
+		</Center>
 	);
 }
