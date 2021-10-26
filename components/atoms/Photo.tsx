@@ -36,6 +36,7 @@ export default function Photo({
 						px="2"
 						bg="rgba(0,0,0,.1)"
 						w="fit-content"
+						border="1px solid rgba(255,255,255,.3)"
 					>
 						{publisher.slice(0, 4)}...{publisher.slice(-4)}
 					</Text>
@@ -47,6 +48,7 @@ export default function Photo({
 						py="1"
 						px="2"
 						bg="rgba(0,0,0,.1)"
+						border="1px solid rgba(255,255,255,.3)"
 						w="fit-content"
 					>
 						{format(timestamp, 'MMM dd, yyyy')}
