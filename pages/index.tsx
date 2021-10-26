@@ -4,6 +4,7 @@ import { Box, Heading, Stack, Button, HStack } from '@chakra-ui/react';
 import { MdAddPhotoAlternate } from 'react-icons/md';
 import { useState } from 'react';
 import AddPhoto from '@/components/molecules/modals/AddPhoto';
+import PhotoGrid from '@/components/molecules/PhotoGrid';
 
 const Home: NextPage = () => {
 	const [showAddModal, setShowAddModal] = useState(false);
@@ -28,6 +29,7 @@ const Home: NextPage = () => {
 						</Button>
 					</HStack>
 				</Stack>
+				<PhotoGrid />
 			</Box>
 		</>
 	);
