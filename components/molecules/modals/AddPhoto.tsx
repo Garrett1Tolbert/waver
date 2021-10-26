@@ -11,22 +11,29 @@ import {
 	Input,
 	Stack,
 	Box,
+	useToast,
 	FormControl,
 	Text,
 	FormLabel,
 	VisuallyHidden,
 	HStack,
+	Link,
 } from '@chakra-ui/react';
 import Image from 'next/image';
 import { ethers } from 'ethers';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { contractAddress } from '@/constants/index';
-import abi from '@/constants/WavePortal.json';
+import abi from '@/constants/PhotosPortal.json';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
+import { Cloudinary } from '@/utils/cloudinary';
+import { useEffect } from 'react';
 
 interface UIProps extends Props {
 	photo: File | undefined;
 	loadingText: string;
-	handleUpload: () => Promise<void>;
+	hash: string;
+	handleClick: () => Promise<void>;
 	setPhoto: Dispatch<SetStateAction<File | undefined>>;
 	setCaption: Dispatch<SetStateAction<string>>;
 }
@@ -35,11 +42,13 @@ const AddPhotoUI = ({
 	onClose,
 	show,
 	photo,
+	hash,
 	loadingText,
 	setCaption,
 	setPhoto,
-	handleUpload,
+	handleClick,
 }: UIProps) => {
+	const ethScan = `https://rinkeby.etherscan.io/tx/${hash}`;
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,6 +91,7 @@ const AddPhotoUI = ({
 										ref={inputRef}
 										accept="image/*"
 										type="file"
+										name="upload"
 										onChange={handleChange}
 									/>
 								</VisuallyHidden>
@@ -118,11 +128,17 @@ const AddPhotoUI = ({
 					</Stack>
 				</ModalBody>
 				<ModalFooter>
+					{hash && (
+						<Link isExternal href={ethScan} mr="4">
+							View Progess
+						</Link>
+					)}
+
 					<Button variant="ghost" mr={3} onClick={onClose}>
 						Cancel
 					</Button>
 					<Button
-						onClick={handleUpload}
+						onClick={handleClick}
 						isLoading={Boolean(loadingText)}
 						loadingText={loadingText}
 					>
@@ -141,39 +157,82 @@ interface Props {
 export default function AddPhoto(props: Props): JSX.Element {
 	const [photo, setPhoto] = useState<File>();
 	const [caption, setCaption] = useState('');
+	const [hash, setHash] = useState('');
 	const [loadingText, setLoadingText] = useState('');
+	const toast = useToast();
+	let uploadedPhoto: string;
 
 	const handleUpload = async () => {
+		try {
+			const id = uuidv4();
+			const formData = new FormData();
+			formData.append('upload', photo!);
+
+			const { data } = await axios.post(
+				`/api/upload?id=photos/${id}`,
+				formData,
+				{
+					headers: { 'content-type': 'multipart/form-data' },
+				}
+			);
+			uploadedPhoto = data.path;
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const handleClick = async () => {
 		if (!photo) return;
 		try {
-			setLoadingText('Processing...');
 			const { ethereum } = window;
 			const provider = new ethers.providers.Web3Provider(ethereum);
 
 			const signer = provider.getSigner();
-			const wavePortalContract = new ethers.Contract(
+			const photosPortalContract = new ethers.Contract(
 				contractAddress,
 				abi.abi,
 				signer
 			);
-			let count = await wavePortalContract.getTotalWaves();
-			console.log('Retrieved total wave count...', count.toNumber());
 
-			const waveTxn = await wavePortalContract.wave();
-			console.log({ waveTxn });
-
-			setLoadingText('Mining...');
-			console.log('Mining...', waveTxn.hash);
-
-			await waveTxn.wait();
-			console.log('Mined -- ', waveTxn.hash);
-
+			// upload photo here
 			setLoadingText('Uploading...');
+			await handleUpload();
 
-			count = await wavePortalContract.getTotalWaves();
-			console.log('Retrieved total wave count...', count.toNumber());
-		} catch (error) {
-			console.log(error);
+			// create a new transaction to send the photo to the blockchain
+			setLoadingText('Awaiting confirmation...');
+			const photoTxn = await photosPortalContract.uploadPhoto(
+				uploadedPhoto,
+				caption
+			);
+			setHash(photoTxn.hash);
+			setLoadingText('Processing...');
+
+			await photoTxn.wait();
+			setHash('');
+
+			setPhoto(undefined);
+			toast({
+				position: 'top-right',
+				title: 'Successful upload',
+				status: 'success',
+				duration: 3000,
+				isClosable: true,
+			});
+			props.onClose();
+		} catch (error: any) {
+			console.error(error);
+			await axios.post('/api/delete', { path: uploadedPhoto });
+			if (error.code === 4001) {
+				setPhoto(undefined);
+				props.onClose();
+				toast({
+					position: 'top-right',
+					title: 'You rejected the transaction',
+					status: 'error',
+					duration: 3000,
+					isClosable: true,
+				});
+			}
 		} finally {
 			setLoadingText('');
 		}
@@ -190,10 +249,11 @@ export default function AddPhoto(props: Props): JSX.Element {
 			{...props}
 			onClose={handleClose}
 			photo={photo}
+			hash={hash}
 			setPhoto={setPhoto}
 			setCaption={setCaption}
 			loadingText={loadingText}
-			handleUpload={handleUpload}
+			handleClick={handleClick}
 		/>
 	);
 }
