@@ -1,52 +1,12 @@
-declare let window: any;
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { Box, Heading, Stack, Button, HStack } from '@chakra-ui/react';
-import { ethers } from 'ethers';
-import abi from '@/constants/WavePortal.json';
 import { MdAddPhotoAlternate } from 'react-icons/md';
 import { useState } from 'react';
 import AddPhoto from '@/components/molecules/modals/AddPhoto';
-import { contractAddress } from '@/constants/index';
 
 const Home: NextPage = () => {
 	const [showAddModal, setShowAddModal] = useState(false);
-	const contractABI = abi.abi;
-
-	const wave = async () => {
-		try {
-			const { ethereum } = window;
-
-			if (ethereum) {
-				const provider = new ethers.providers.Web3Provider(ethereum);
-
-				const signer = provider.getSigner();
-				const wavePortalContract = new ethers.Contract(
-					contractAddress,
-					contractABI,
-					signer
-				);
-
-				let count = await wavePortalContract.getTotalWaves();
-				console.log('Retrieved total wave count...', count.toNumber());
-
-				const waveTxn = await wavePortalContract.wave();
-				console.log({ waveTxn });
-
-				console.log('Mining...', waveTxn.hash);
-
-				await waveTxn.wait();
-				console.log('Mined -- ', waveTxn.hash);
-
-				count = await wavePortalContract.getTotalWaves();
-				console.log('Retrieved total wave count...', count.toNumber());
-			} else {
-				console.log("Ethereum object doesn't exist!");
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	};
 
 	return (
 		<>
