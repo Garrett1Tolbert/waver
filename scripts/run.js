@@ -1,24 +1,36 @@
 const main = async () => {
 	const [owner, randomPerson] = await hre.ethers.getSigners();
-	const waveContractFactory = await hre.ethers.getContractFactory('WavePortal');
-	const waveContract = await waveContractFactory.deploy();
-	await waveContract.deployed();
+	// const waveContractFactory = await hre.ethers.getContractFactory('WavePortal');
+	// const waveContract = await waveContractFactory.deploy();
+	// await waveContract.deployed();
 
-	console.log('Contract deployed to:', waveContract.address);
+	const photosContractFactory = await hre.ethers.getContractFactory(
+		'PhotosPortal'
+	);
+	const photosContract = await photosContractFactory.deploy();
+	await photosContract.deployed();
+
+	// console.log('Contract deployed to:', waveContract.address);
+	// console.log('Contract deployed by:', owner.address);
+
+	console.log('Contract deployed to:', photosContract.address);
 	console.log('Contract deployed by:', owner.address);
 
-	let waveCount;
-	waveCount = await waveContract.getTotalWaves();
+	let requests;
+	requests = await photosContract.getRequests();
+	console.log(requests);
 
-	let waveTxn = await waveContract.wave();
-	await waveTxn.wait();
+	let requestTxn = await photosContract.processRequest();
+	await requestTxn.wait();
 
-	waveCount = await waveContract.getTotalWaves();
+	requests = await photosContract.getRequests();
+	console.log(requests);
 
-	waveTxn = await waveContract.connect(randomPerson).wave();
-	await waveTxn.wait();
+	requestTxn = await photosContract.connect(randomPerson).processRequest();
+	await requestTxn.wait();
 
-	waveCount = await waveContract.getTotalWaves();
+	requests = await photosContract.getRequests();
+	console.log(requests);
 };
 
 const runMain = async () => {
