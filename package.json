@@ -27,6 +27,7 @@
     "@emotion/styled": "^11",
     "axios": "^0.24.0",
     "cloudinary": "^1.27.1",
+    "date-fns": "^2.25.0",
     "framer-motion": "^4",
     "multer": "^1.4.3",
     "multer-storage-cloudinary": "^4.0.0",
