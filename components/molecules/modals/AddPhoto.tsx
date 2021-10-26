@@ -17,6 +17,7 @@ import {
 	VisuallyHidden,
 	HStack,
 	Link,
+	UseToastOptions,
 } from '@chakra-ui/react';
 import Image from 'next/image';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
@@ -29,7 +30,7 @@ interface UIProps extends Props {
 	loadingText: string;
 	hash: string;
 	handleClick: () => Promise<void>;
-	setPhoto: Dispatch<SetStateAction<File | undefined>>;
+	handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	setCaption: Dispatch<SetStateAction<string>>;
 }
 
@@ -40,19 +41,11 @@ const AddPhotoUI = ({
 	hash,
 	loadingText,
 	setCaption,
-	setPhoto,
+	handleChange,
 	handleClick,
 }: UIProps) => {
 	const ethScan = `https://rinkeby.etherscan.io/tx/${hash}`;
 	const inputRef = useRef<HTMLInputElement>(null);
-
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (!e.target.files?.length) {
-			e.target.value = '';
-			return;
-		}
-		setPhoto(e.target.files[0]);
-	};
 
 	return (
 		<Modal isOpen={show} onClose={onClose} isCentered>
@@ -149,6 +142,13 @@ interface Props {
 	show: boolean;
 	onClose: () => void;
 }
+
+const toastOptions: UseToastOptions = {
+	position: 'top-right',
+	duration: 3000,
+	isClosable: true,
+};
+
 export default function AddPhoto(props: Props): JSX.Element {
 	const [photo, setPhoto] = useState<File>();
 	const [caption, setCaption] = useState('');
@@ -199,11 +199,9 @@ export default function AddPhoto(props: Props): JSX.Element {
 
 			setPhoto(undefined);
 			toast({
-				position: 'top-right',
 				title: 'Successful upload',
 				status: 'success',
-				duration: 3000,
-				isClosable: true,
+				...toastOptions,
 			});
 			props.onClose();
 		} catch (error: any) {
@@ -213,16 +211,32 @@ export default function AddPhoto(props: Props): JSX.Element {
 				setPhoto(undefined);
 				props.onClose();
 				toast({
-					position: 'top-right',
 					title: 'You rejected the transaction',
 					status: 'error',
-					duration: 3000,
-					isClosable: true,
+					...toastOptions,
 				});
 			}
 		} finally {
 			setLoadingText('');
 		}
+	};
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (!e.target.files?.length) {
+			e.target.value = '';
+			return;
+		}
+
+		if (e.target.files[0].size > 10485760) {
+			toast({
+				title: 'Image is too big',
+				status: 'error',
+				...toastOptions,
+			});
+			e.target.value = '';
+			return;
+		}
+		setPhoto(e.target.files[0]);
 	};
 
 	const handleClose = () => {
@@ -237,9 +251,9 @@ export default function AddPhoto(props: Props): JSX.Element {
 			onClose={handleClose}
 			photo={photo}
 			hash={hash}
-			setPhoto={setPhoto}
 			setCaption={setCaption}
 			loadingText={loadingText}
+			handleChange={handleChange}
 			handleClick={handleClick}
 		/>
 	);
