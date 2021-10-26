@@ -1,12 +1,8 @@
 import { Flex } from '@chakra-ui/react';
-import { ReactNode } from 'react';
+import { LayoutProps } from 'types';
 import Sidebar from '../molecules/Sidebar';
 
-interface Props {
-	children: ReactNode;
-}
-
-export default function Layout({ children }: Props) {
+export default function Layout({ children }: LayoutProps) {
 	return (
 		<Flex>
 			<Sidebar />
