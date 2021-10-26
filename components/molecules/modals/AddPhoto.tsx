@@ -1,4 +1,3 @@
-declare let window: any;
 import {
 	Button,
 	Modal,
@@ -20,14 +19,10 @@ import {
 	Link,
 } from '@chakra-ui/react';
 import Image from 'next/image';
-import { ethers } from 'ethers';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
-import { contractAddress } from '@/constants/index';
-import abi from '@/constants/PhotosPortal.json';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import { Cloudinary } from '@/utils/cloudinary';
-import { useEffect } from 'react';
+import useContract from '@/hooks/useContract';
 
 interface UIProps extends Props {
 	photo: File | undefined;
@@ -161,6 +156,7 @@ export default function AddPhoto(props: Props): JSX.Element {
 	const [loadingText, setLoadingText] = useState('');
 	const toast = useToast();
 	let uploadedPhoto: string;
+	const { getContract } = useContract();
 
 	const handleUpload = async () => {
 		try {
@@ -184,23 +180,14 @@ export default function AddPhoto(props: Props): JSX.Element {
 	const handleClick = async () => {
 		if (!photo) return;
 		try {
-			const { ethereum } = window;
-			const provider = new ethers.providers.Web3Provider(ethereum);
-
-			const signer = provider.getSigner();
-			const photosPortalContract = new ethers.Contract(
-				contractAddress,
-				abi.abi,
-				signer
-			);
-
+			const photosPortalContract = getContract('PhotosPortal');
 			// upload photo here
 			setLoadingText('Uploading...');
 			await handleUpload();
 
 			// create a new transaction to send the photo to the blockchain
 			setLoadingText('Awaiting confirmation...');
-			const photoTxn = await photosPortalContract.uploadPhoto(
+			const photoTxn = await photosPortalContract!.uploadPhoto(
 				uploadedPhoto,
 				caption
 			);
