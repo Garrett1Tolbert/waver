@@ -1,36 +1,34 @@
 const main = async () => {
-	const [owner, randomPerson] = await hre.ethers.getSigners();
-	// const waveContractFactory = await hre.ethers.getContractFactory('WavePortal');
-	// const waveContract = await waveContractFactory.deploy();
-	// await waveContract.deployed();
-
 	const photosContractFactory = await hre.ethers.getContractFactory(
 		'PhotosPortal'
 	);
-	const photosContract = await photosContractFactory.deploy();
+	const photosContract = await photosContractFactory.deploy({
+		value: hre.ethers.utils.parseEther('0.1'),
+	});
 	await photosContract.deployed();
-
-	// console.log('Contract deployed to:', waveContract.address);
-	// console.log('Contract deployed by:', owner.address);
-
 	console.log('Contract deployed to:', photosContract.address);
-	console.log('Contract deployed by:', owner.address);
 
-	let requests;
-	requests = await photosContract.getRequests();
-	console.log(requests);
+	let contractBalance = await hre.ethers.provider.getBalance(
+		photosContract.address
+	);
+	console.log(
+		'Contract balance:',
+		hre.ethers.utils.formatEther(contractBalance)
+	);
 
-	let requestTxn = await photosContract.processRequest();
-	await requestTxn.wait();
+	let uploadTxn = await photosContract.uploadPhoto(
+		'some_photo',
+		'best caption'
+	);
+	await uploadTxn.wait();
 
-	requests = await photosContract.getRequests();
-	console.log(requests);
-
-	requestTxn = await photosContract.connect(randomPerson).processRequest();
-	await requestTxn.wait();
-
-	requests = await photosContract.getRequests();
-	console.log(requests);
+	contractBalance = await hre.ethers.provider.getBalance(
+		photosContract.address
+	);
+	console.log(
+		'Contract balance:',
+		hre.ethers.utils.formatEther(contractBalance)
+	);
 };
 
 const runMain = async () => {
