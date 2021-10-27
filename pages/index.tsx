@@ -16,19 +16,29 @@ const Home: NextPage = () => {
 				<meta name="description" content="Wave at me" />
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
-			<Box h="100vh" w="100vw" pos="relative" p="16">
-				<AddPhoto show={showAddModal} onClose={() => setShowAddModal(false)} />
-				<Stack spacing={4}>
-					<HStack justifyContent="space-between" alignItems="center">
-						<Heading fontSize="6xl">Waver</Heading>
-						<Button
-							leftIcon={<MdAddPhotoAlternate />}
-							onClick={() => setShowAddModal(true)}
-						>
-							Add a photo
-						</Button>
-					</HStack>
-				</Stack>
+			<Box h="100vh" w="100vw" pos="relative" overflowY="scroll">
+				<AddPhoto
+					show={showAddModal}
+					onClose={() => setShowAddModal(false)}
+				/>
+				<HStack
+					justifyContent="space-between"
+					alignItems="center"
+					pos="sticky"
+					top="0"
+					pt="16"
+					px="16"
+					zIndex="5"
+					bg="#1a202c"
+				>
+					<Heading fontSize="6xl">Waver</Heading>
+					<Button
+						leftIcon={<MdAddPhotoAlternate />}
+						onClick={() => setShowAddModal(true)}
+					>
+						Add a photo
+					</Button>
+				</HStack>
 				<PhotoGrid />
 			</Box>
 		</>

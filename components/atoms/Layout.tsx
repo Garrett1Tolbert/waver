@@ -4,7 +4,7 @@ import Sidebar from '../molecules/Sidebar';
 
 export default function Layout({ children }: LayoutProps) {
 	return (
-		<Flex>
+		<Flex pos="relative">
 			<Sidebar />
 			{children}
 		</Flex>

@@ -16,8 +16,10 @@ const SidebarUI = ({ dates }: UIProps) => {
 			minW="180px"
 			transition="all .2s"
 			px="4"
+			zIndex="10"
 			shadow="dark-lg"
-			pos="relative"
+			pos="sticky"
+			top="0"
 		>
 			<Account />
 		</Box>
