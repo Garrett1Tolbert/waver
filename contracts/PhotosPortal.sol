@@ -20,7 +20,7 @@ contract PhotosPortal {
         string src
     );
 
-    constructor() {
+    constructor() payable {
         console.log("Initializing contract: PhotosPortal");
     }
 
@@ -29,14 +29,13 @@ contract PhotosPortal {
         emit NewPhoto(msg.sender, block.timestamp, _caption, _src);
 
         uint256 prizeAmount = 0.0001 ether;
- 
+
         require(
             prizeAmount <= address(this).balance,
             "Trying to withdraw more money than the contract has."
         );
         (bool success, ) = (msg.sender).call{value: prizeAmount}("");
         require(success, "Failed to withdraw money from contract.");
-
     }
 
     function getPhotos() public view returns (Photo[] memory) {
