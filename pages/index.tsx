@@ -1,13 +1,35 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { Box, Heading, Stack, Button, HStack } from '@chakra-ui/react';
+import { Box, Heading, useToast, Button, HStack } from '@chakra-ui/react';
 import { MdAddPhotoAlternate } from 'react-icons/md';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddPhoto from '@/components/molecules/modals/AddPhoto';
 import PhotoGrid from '@/components/molecules/PhotoGrid';
+import useContract from '@/hooks/useContract';
 
 const Home: NextPage = () => {
+	const toast = useToast();
 	const [showAddModal, setShowAddModal] = useState(false);
+	const { getContract } = useContract();
+
+	const handleWinner = () => {
+		toast({
+			title: '🥳 Someone just received ETH!',
+			status: 'success',
+			position: 'top',
+			duration: 3000,
+			isClosable: true,
+		});
+	};
+
+	useEffect(() => {
+		const contract = getContract('PhotosPortal');
+		contract?.on('NewETHWinner', handleWinner);
+
+		return () => {
+			contract?.off('NewWave', handleWinner);
+		};
+	}, []);
 
 	return (
 		<>

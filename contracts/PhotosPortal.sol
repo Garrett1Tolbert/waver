@@ -21,12 +21,11 @@ contract PhotosPortal {
 		string src
 	);
 
-	event NewETHWinner(address indexed from);
+	event NewETHWinner(address indexed from, string message);
 
 	mapping(address => uint256) public lastUploaded;
 
 	constructor() payable {
-		console.log('Initializing contract: PhotosPortal');
 		seed = (block.timestamp + block.difficulty) % 100;
 	}
 
@@ -42,10 +41,8 @@ contract PhotosPortal {
 
 		seed = (block.difficulty + block.timestamp + seed) % 100;
 
-		if (seed <= 7) {
+		if (seed <= 10) {
 			uint256 prizeAmount = 0.0001 ether;
-			console.log('%s won!', msg.sender);
-			emit NewETHWinner(msg.sender);
 
 			require(
 				prizeAmount <= address(this).balance,
@@ -53,6 +50,7 @@ contract PhotosPortal {
 			);
 			(bool success, ) = (msg.sender).call{value: prizeAmount}('');
 			require(success, 'Failed to withdraw money from contract.');
+			emit NewETHWinner(msg.sender, 'received ETH!');
 		}
 	}
 
