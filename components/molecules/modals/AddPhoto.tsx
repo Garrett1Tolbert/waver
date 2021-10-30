@@ -104,7 +104,12 @@ const AddPhotoUI = ({
 						<FormControl id="caption">
 							<FormLabel>
 								Caption{' '}
-								<Text as="span" opacity={0.5} fontSize="sm" fontStyle="italic">
+								<Text
+									as="span"
+									opacity={0.5}
+									fontSize="sm"
+									fontStyle="italic"
+								>
 									(optional)
 								</Text>
 							</FormLabel>
@@ -189,7 +194,8 @@ export default function AddPhoto(props: Props): JSX.Element {
 			setLoadingText('Awaiting confirmation...');
 			const photoTxn = await photosPortalContract!.uploadPhoto(
 				uploadedPhoto,
-				caption
+				caption,
+				{ gasLimit: 300000 }
 			);
 			setHash(photoTxn.hash);
 			setLoadingText('Processing...');
@@ -206,12 +212,21 @@ export default function AddPhoto(props: Props): JSX.Element {
 			props.onClose();
 		} catch (error: any) {
 			console.error(error);
+
 			await axios.post('/api/delete', { path: uploadedPhoto });
 			if (error.code === 4001) {
 				setPhoto(undefined);
 				props.onClose();
 				toast({
 					title: 'You rejected the transaction',
+					status: 'error',
+					...toastOptions,
+				});
+			} else if (error.reason === 'transaction failed') {
+				setPhoto(undefined);
+				props.onClose();
+				toast({
+					title: 'Must wait 30 seconds before uploading another photo.',
 					status: 'error',
 					...toastOptions,
 				});
