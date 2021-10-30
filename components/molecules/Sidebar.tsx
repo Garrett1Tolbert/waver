@@ -32,8 +32,8 @@ export default function Sidebar(): JSX.Element {
 	const { updatePhotos } = useData();
 	const [dates, setDates] = useState([]);
 
+	const photosPortalContract = getContract('PhotosPortal');
 	const getPhotos = async () => {
-		const photosPortalContract = getContract('PhotosPortal');
 		const photos = await photosPortalContract?.getPhotos();
 
 		updatePhotos(
@@ -48,6 +48,7 @@ export default function Sidebar(): JSX.Element {
 
 	useEffect(() => {
 		getPhotos();
-	}, [account]);
+	}, [account, photosPortalContract]);
+
 	return <SidebarUI dates={dates} />;
 }
