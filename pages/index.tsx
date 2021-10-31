@@ -1,15 +1,13 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { Box, Heading, useToast, Button, HStack } from '@chakra-ui/react';
-import { MdAddPhotoAlternate } from 'react-icons/md';
-import { useEffect, useState } from 'react';
-import AddPhoto from '@/components/molecules/modals/AddPhoto';
+import { Box, useToast } from '@chakra-ui/react';
+import { useEffect } from 'react';
 import PhotoGrid from '@/components/molecules/PhotoGrid';
 import useContract from '@/hooks/useContract';
+import Header from '@/components/molecules/Header';
 
 const Home: NextPage = () => {
 	const toast = useToast();
-	const [showAddModal, setShowAddModal] = useState(false);
 	const { getContract } = useContract();
 
 	const handleWinner = () => {
@@ -35,32 +33,14 @@ const Home: NextPage = () => {
 		<>
 			<Head>
 				<title>Waver</title>
-				<meta name="description" content="Wave at me" />
+				<meta
+					name="description"
+					content="A decentralized photo sharing app"
+				/>
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<Box h="100vh" w="100vw" pos="relative" overflowY="scroll">
-				<AddPhoto
-					show={showAddModal}
-					onClose={() => setShowAddModal(false)}
-				/>
-				<HStack
-					justifyContent="space-between"
-					alignItems="center"
-					pos="sticky"
-					top="0"
-					pt="16"
-					px="16"
-					zIndex="5"
-					bg="#1a202c"
-				>
-					<Heading fontSize="6xl">Waver</Heading>
-					<Button
-						leftIcon={<MdAddPhotoAlternate />}
-						onClick={() => setShowAddModal(true)}
-					>
-						Add a photo
-					</Button>
-				</HStack>
+				<Header title="Waver" />
 				<PhotoGrid />
 			</Box>
 		</>
