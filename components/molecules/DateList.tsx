@@ -1,6 +1,6 @@
 import { useData } from '@/hooks/useData';
 import { Stack, Text } from '@chakra-ui/react';
-import { format } from 'date-fns';
+import { compareDesc, format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -16,9 +16,10 @@ export default function DateList(): JSX.Element {
 	const activeBg = 'rgba(255,255,255,.35)';
 
 	useEffect(() => {
-		const temp = photos?.map((photo: any) =>
-			format(photo.timestamp, 'MM-dd-yyyy')
-		);
+		const _dates = photos?.map((el) => el.timestamp);
+		const temp = _dates
+			?.sort(compareDesc)
+			.map((el) => format(el, 'MM-dd-yyyy'));
 		setDates([...new Set(temp)]);
 	}, [photos]);
 
