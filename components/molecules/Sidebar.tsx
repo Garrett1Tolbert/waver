@@ -2,14 +2,11 @@ import useAuth from '@/hooks/useAuth';
 import useContract from '@/hooks/useContract';
 import { useData } from '@/hooks/useData';
 import { Box } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Account from '../atoms/Account';
+import DateList from './DateList';
 
-interface UIProps {
-	dates: string[];
-}
-
-const SidebarUI = ({ dates }: UIProps) => {
+const SidebarUI = () => {
 	return (
 		<Box
 			h="100vh"
@@ -21,6 +18,7 @@ const SidebarUI = ({ dates }: UIProps) => {
 			pos="sticky"
 			top="0"
 		>
+			<DateList />
 			<Account />
 		</Box>
 	);
@@ -30,7 +28,6 @@ export default function Sidebar(): JSX.Element {
 	const { getContract } = useContract();
 	const { account } = useAuth();
 	const { updatePhotos } = useData();
-	const [dates, setDates] = useState([]);
 
 	const photosPortalContract = getContract('PhotosPortal');
 	const getPhotos = async () => {
@@ -50,5 +47,5 @@ export default function Sidebar(): JSX.Element {
 		getPhotos();
 	}, [account, photosPortalContract]);
 
-	return <SidebarUI dates={dates} />;
+	return <SidebarUI />;
 }
