@@ -1,8 +1,13 @@
 import { useData } from '@/hooks/useData';
 import { Grid } from '@chakra-ui/react';
+import { Photo as PhotoType } from '../../types';
 import Photo from '@/components/atoms/Photo';
 
-export default function PhotoGrid(): JSX.Element {
+interface Props {
+	filtereredPhotos?: PhotoType[];
+}
+
+export default function PhotoGrid({ filtereredPhotos }: Props): JSX.Element {
 	const { photos } = useData();
 	return (
 		<Grid
@@ -14,7 +19,7 @@ export default function PhotoGrid(): JSX.Element {
 			gap={12}
 			overflowY="scroll"
 		>
-			{photos?.map((el, idx) => (
+			{(filtereredPhotos || photos)?.map((el, idx) => (
 				<Photo key={idx} {...el} />
 			))}
 		</Grid>
